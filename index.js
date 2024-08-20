@@ -1,39 +1,43 @@
-const puppeteer = require('puppeteer');
-const downloadFile = require('./downloadFile.js');
-const { HTTPResponse } = require('puppeteer-core');
+require('module-alias/register');
 
-async function index(){
+const readline = require('readline');
+const puppeteer = require('puppeteer');
+const downloadFile = require('@utils/downloadFile.js');
+const {getFilesRepositories, getFileDownloadLink} = require('@utils/webScrapping.js');
+const { sleep } = require('./utils/general');
+
+const homepage = "https://www.cnv.gov.ar/SitioWeb/FondosComunesInversion/CuotaPartes";
+
+async function index() {
+
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    rl.question('Testing ', (a) => {
+        console.log('Answer: ' + a);
+        rl.close();
+    })
+
     const browser = await puppeteer.launch({
         headless:true,
         userDataDir:'./data',
     });
-    console.log("Se crea un browser");
 
     const page = await browser.newPage();
-    console.log("Se crea una page");
 
-    const response = await page.goto("https://www.cnv.gov.ar/SitioWeb/FondosComunesInversion/CuotaPartes");
-    console.log(`HTTP Response: ${response.status()}`);
+    const response = await page.goto(homepage);
+    console.log(`Homepage HTTP Response: ${response.status()}`);
     
-    await page.waitForSelector(".tabla-hechos-relevantes a");
-    console.log("antes");
-    await (async () => {
-        return new Promise(r => setTimeout(r,1000));
-    })();
-    console.log("despues");
-    
-    const hrefs = await page.$$eval('.tabla-hechos-relevantes a', as => as.map(a => a.href));
-    
-    for (const e of hrefs) {
-        const response = await page.goto(e);
-        console.log(`HTTP Response: ${response.status()}`);
-        await page.waitForSelector("a.downloadFile");
-        console.log("antes");
-        let fileKey =  await page.$$eval("a.downloadFile", e => e.map(x => x.getAttribute("data-guid")));
-        let fileName =  await page.$$eval("a.downloadFile", e => e.map(x => x.getAttribute("data-name")));
-        let presentation = await page.$$eval("#txtPresentationId", e => e.map(x => x.getAttribute("value")));
-        console.log("despues");
-        downloadFile(fileKey, `${presentation}_${fileName}`);
+    if(response.status() == 200) {
+        const hrefs = await getFilesRepositories(page);
+
+        for (const e of hrefs) {
+            const {fileKey, fileName, presentation} = await getFileDownloadLink(page, e);
+            downloadFile(fileKey, `${presentation}_${fileName}`);
+        }
+        
     }
 
     browser.close();

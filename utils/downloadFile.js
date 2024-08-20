@@ -27,9 +27,8 @@ function downloadFile(fileKey, fileName) {
     }
 
     valetKey = stdout.match(regexForGetValetKeyCommandOutput)[1];
-    console.log(`Curl stderr: ${stderr}`);
-    console.log('Valet key found anashe');
-    console.log('----------------------');
+    console.log('Valet key found!');
+    console.log('----------------');
     
     // Define the curl command
     downloadCommand = `curl "https://blob.cnv.gov.ar/BlobWebService.svc/DownloadBlob/${fileKey}" \
@@ -43,7 +42,7 @@ function downloadFile(fileKey, fileName) {
     -H "Sec-Fetch-Site: same-site" \
     --data-raw "ValetKey=${encodeURIComponent(valetKey)}" \
     --create-dirs \
-    --output files/${fileName}`;  // Adjust the output filename
+    --output downloaded_files/${fileName}`;  // Adjust the output filename
 
     // Execute the curl command
     exec(downloadCommand, (error, stdout, stderr) => {
@@ -51,13 +50,7 @@ function downloadFile(fileKey, fileName) {
             console.error(`Error executing curl command: ${error}`);
             return;
         }
-
-        if (stderr) {
-            console.error(`Curl stderr: ${stderr}`);
-        }
-
-        console.log(`Curl stdout: ${stdout}`);
-        console.log('File downloaded successfully.');
+        console.log(`File ${fileName} downloaded successfully.`);
     });
   });
 }
