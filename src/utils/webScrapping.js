@@ -1,11 +1,11 @@
 require('module-alias/register');
 const {sleep} = require('@utils/general.js');
 
-async function getFilesRepositories(page){
+async function getSelectedLinks(page, selector){
     console.log("Getting files address");
-    await page.waitForSelector(".tabla-hechos-relevantes a");
+    await page.waitForSelector(`${selector} a`);//.tabla-hechos-relevantes
     sleep(1000);
-    return await page.$$eval('.tabla-hechos-relevantes a', as => as.map(a => a.href));
+    return await page.$$eval(`${selector} a`, as => as.map(a => a.href));
 }
 
 async function getFileDownloadLink(page, link){
@@ -19,6 +19,6 @@ async function getFileDownloadLink(page, link){
 }
 
 module.exports = {
-    "getFilesRepositories": getFilesRepositories,
+    "getSelectedLinks": getSelectedLinks,
     "getFileDownloadLink": getFileDownloadLink,
 }

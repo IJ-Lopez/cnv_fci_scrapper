@@ -1,6 +1,7 @@
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const config = require('@config')
 
 function downloadFile(fileKey, fileName) {
 
@@ -42,7 +43,7 @@ function downloadFile(fileKey, fileName) {
     -H "Sec-Fetch-Site: same-site" \
     --data-raw "ValetKey=${encodeURIComponent(valetKey)}" \
     --create-dirs \
-    --output downloaded_files/${fileName}`;  // Adjust the output filename
+    --output ${config.DOWNLOAD_PATH}/${fileName}`;  // Adjust the output filename
 
     // Execute the curl command
     exec(downloadCommand, (error, stdout, stderr) => {

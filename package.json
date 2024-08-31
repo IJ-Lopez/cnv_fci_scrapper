@@ -6,6 +6,7 @@
   },
   "_moduleAliases": {
     "@root": ".",
-    "@utils": "src/utils"
+    "@utils": "src/utils",
+    "@config": "./configuration.js"
   }
 }
