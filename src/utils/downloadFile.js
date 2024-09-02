@@ -28,9 +28,7 @@ function downloadFile(fileKey, fileName) {
     }
 
     valetKey = stdout.match(regexForGetValetKeyCommandOutput)[1];
-    console.log('Valet key found!');
-    console.log('----------------');
-    
+
     // Define the curl command
     downloadCommand = `curl "https://blob.cnv.gov.ar/BlobWebService.svc/DownloadBlob/${fileKey}" \
     -X POST \
@@ -43,16 +41,40 @@ function downloadFile(fileKey, fileName) {
     -H "Sec-Fetch-Site: same-site" \
     --data-raw "ValetKey=${encodeURIComponent(valetKey)}" \
     --create-dirs \
-    --output ${config.DOWNLOAD_PATH}/${fileName}`;  // Adjust the output filename
+    --output ${config.DOWNLOAD_PATH}\\${fileName}`;  // Adjust the output filename
 
     // Execute the curl command
     exec(downloadCommand, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error executing curl command: ${error}`);
-            return;
+      if (error) {
+
+        if(fileName.includes(' (1)')){
+
+          let splitFileName = fileName.split(' (1)');
+
+          fs.rm(`${config.DOWNLOAD_PATH}\\${splitFileName[0]}`, (err) => {
+            if (err) {
+              console.error(`Error deleting file: ${err}`);
+            }
+          });
+
+          return downloadFile(fileKey, `${splitFileName[0]}${splitFileName[1]}`);
+
+        } else {
+
+          fs.rm(`${config.DOWNLOAD_PATH}\\${fileName}`, (err) => {
+            if (err) {
+              console.error(`Error deleting file: ${err}`);
+            }
+          });
+          console.error(`Error executing curl command: ${error}`);
+          return;
+
         }
-        console.log(`File ${fileName} downloaded successfully.`);
+
+      }
     });
+
+    //console.log(`File ${fileName} downloaded successfully.`);
   });
 }
 
